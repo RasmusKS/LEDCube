@@ -11,7 +11,7 @@ char map[size][size][size][3];
 void clearMap(){
 	for (int a = 0; a < size; a++) for (int b = 0; b < size; b++) for (int c = 0; c < size; c++) for (int d = 0; d < 3; d++) map[a][b][c][d] = 0;
 }
-
+ 
 void fade(unsigned int  stateTime){
 	int now;
 	for (int a = 0; a < 3; a++){
