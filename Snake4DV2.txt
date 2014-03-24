@@ -1,0 +1,121 @@
+#include <stdlib.h>
+
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+#include <C:\cygwin64\home\Rasmus\avr/timer.h>
+#include <C:\cygwin64\home\Rasmus\avr/Cube3.h>
+
+char map[size][size][size][3];
+
+unsigned long int lastTime = 0;
+
+int speed = 2000;
+bool alive = true;
+char foodPos[4];
+char snake[size*size*size*3][4] = {{1, 1, 1, 0}, {1, 0, 1, 0}};
+unsigned int snakeLength = 2;
+
+char dir = 'f';
+char color = 0;
+
+void placeFood(){
+	for (int a = 0; a < 3; a++) foodPos[a] = rand() % size;
+	foodPos[3] = rand() % 3;
+	for (int a = 0; a < snakeLength; a++){
+		if (foodPos[0] == snake[a][0] && foodPos[1] == snake[a][1] && foodPos[2] == snake[a][2] && foodPos[3] == snake[a][3]) placeFood();
+	}
+}
+void addFoodToMap(){
+	map[foodPos[0]][foodPos[1]][foodPos[2]][foodPos[3]] = 1;
+}
+void addSnakeToMap(){
+	for (int a = 0; a < snakeLength; a++){
+		map[snake[a][0]][snake[a][1]][snake[a][2]][snake[a][3]] = 1;
+	}
+}
+void clearMap(){
+	for (int a = 0; a < size; a++) for (int b = 0; b < size; b++) for (int c = 0; c < size; c++) for (int d = 0; d < 3; d++) map[a][b][c][d] = 0;
+}
+void getMove(){
+	
+}
+void moveSnake(){
+	for (int a = snakeLength; a > 0; a--){
+		for (int b = 0; b < 4; b++){
+			snake[a][b] = snake[a - 1][b];
+		}
+	}
+	snake[0][3] = color;
+	
+	switch(dir){
+		case 'd':
+			snake[0][0]--; // moves down;
+			break;
+		case 'u':
+			snake[0][0]++; // moves up;
+			break;
+		case 'l':
+			snake[0][2]++; // moves left;
+			break;
+		case 'r':
+			snake[0][2]++; // moves right;
+			break;
+		case 'b':
+			snake[0][1]++; // moves backward;
+			break;
+		case 'f':
+			snake[0][1]++; // moves forward;
+			break;
+	}
+	
+	if (snake[0][0] < 0) snake[0][0] = 2;
+	else if (snake[0][0] > 2) snake[0][0] = 0;
+  
+	else if (snake[0][1] < 0) snake[0][1] = 2;
+	else if (snake[0][1] > 2) snake[0][1] = 0;
+  
+	else if (snake[0][2] < 0) snake[0][2] = 2;
+	else if (snake[0][2] > 2) snake[0][2] = 0;
+}
+void checkFood(){
+
+}
+bool checkDead(){
+ return false;
+}
+void showDeath(){
+
+}
+
+void setup(){
+	CubeInit();
+	timerInit();
+}
+
+unsigned short int stepTime = 500;
+unsigned short int foodBlinkTime = 250;
+
+void loop(){
+	addFoodToMap();
+	while (alive){
+		int counter = Mil + 1000 * Sek;
+		while (counter + stepTime > Mil + 1000 * Sek){
+			addSnakeToMap();
+			addFoodToMap();
+			digitalWrite(map);
+			clearMap();
+		}
+		getMove();
+		moveSnake();
+		checkFood();
+		if (checkDead()) alive = false;
+	}
+	while (!alive){
+		showDeath();
+	}
+}
+int main(){
+	setup();
+	while (1) loop();
+}
